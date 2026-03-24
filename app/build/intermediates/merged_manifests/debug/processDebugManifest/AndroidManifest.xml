@@ -19,6 +19,7 @@
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
         android:extractNativeLibs="false"
+        android:hardwareAccelerated="true"
         android:label="GuitarTrainer"
         android:supportsRtl="true"
         android:testOnly="true"
@@ -26,6 +27,7 @@
         <activity
             android:name="com.guitartrainer.MainActivity"
             android:exported="true"
+            android:keepScreenOn="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>

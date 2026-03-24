@@ -37,3 +37,11 @@ data class EvaluatedTouch(
     val isCorrect: Boolean,
     val isMute: Boolean
 )
+
+enum class StringState { UNTOUCHED, CORRECT, WRONG }
+
+data class StringFeedback(
+    val stringIndex: Int,
+    val fret: Int,
+    val state: StringState
+)

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,37 +39,47 @@ class MainActivity : ComponentActivity() {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0xFF1A1A1A))
+                        .background(Color.Black)
                 ) {
                     // Left side: info panel
                     Column(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(16.dp),
+                            .padding(vertical = 32.dp, horizontal = 12.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Chord name
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                "CHORD",
-                                color = Color.White.copy(alpha = 0.5f),
-                                fontSize = 12.sp,
-                                letterSpacing = 2.sp
+                                "TARGET\nCHORD",
+                                color = Color.Gray,
+                                fontSize = 10.sp,
+                                letterSpacing = 2.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 16.sp
                             )
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(12.dp))
                             Text(
-                                targetChord.name,
+                                targetChord.name.replace(" ", "\n"), // Stack the name nicely
                                 color = Color.White,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Light,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 36.sp
                             )
                         }
 
                         // Fingering info
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFF111111))
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             val stringNames = listOf("E", "A", "D", "G", "B", "e")
                             targetChord.patterns.forEach { p ->
                                 val fretLabel = when {
@@ -76,35 +87,51 @@ class MainActivity : ComponentActivity() {
                                     p.fret == 0 -> "○"
                                     else -> "${p.fret}"
                                 }
-                                Text(
-                                    "${stringNames[p.stringIndex]}  $fretLabel",
-                                    color = Color.White.copy(alpha = 0.7f),
-                                    fontSize = 14.sp
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        stringNames[p.stringIndex],
+                                        color = Color.Gray,
+                                        fontSize = 15.sp,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                    Text(
+                                        fretLabel,
+                                        color = if (p.isMute) Color(0xFF666666) else Color.White,
+                                        fontSize = 15.sp,
+                                        fontFamily = FontFamily.Monospace,
+                                        fontWeight = if (p.fret > 0) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                                Spacer(Modifier.height(8.dp))
                             }
                         }
 
-                        // Navigation
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            NavButton("◀") {
+                        // Navigation stacked vertically so it doesn't get cut off
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            NavButton("PREV") {
                                 chordIndex = (chordIndex - 1 + chords.size) % chords.size
                             }
-                            NavButton("▶") {
+                            NavButton("NEXT") {
                                 chordIndex = (chordIndex + 1) % chords.size
                             }
                         }
                     }
 
                     // Right side: fretboard
-                    FretboardView(
-                        targetChord = targetChord,
-                        onChordCompleted = {
-                            audioEngine.playChord(targetChord.name)
-                        },
-                        onNotePlay = { stringIndex, fret ->
-                            audioEngine.playNote(stringIndex, fret)
-                        }
-                    )
+                    Box(modifier = Modifier.fillMaxHeight()) {
+                        FretboardView(
+                            targetChord = targetChord,
+                            onChordCompleted = {
+                                audioEngine.playChord(targetChord.name)
+                            },
+                            onNotePlay = { stringIndex, fret ->
+                                audioEngine.playNote(stringIndex, fret)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -120,12 +147,13 @@ class MainActivity : ComponentActivity() {
 private fun NavButton(text: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.1f))
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(50))
+            .background(Color(0xFF1A1A1A))
             .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 8.dp),
+            .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp)
     }
 }
